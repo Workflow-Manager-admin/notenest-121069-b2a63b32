@@ -30,17 +30,45 @@ const initialNotesState = {
 function notesReducer(state, action) {
   switch (action.type) {
     // Add a new note
-    case "ADD_NOTE":
-      // Placeholder: Add implementation
-      return { ...state };
+    case "ADD_NOTE": {
+      const note = action.payload;
+      return {
+        ...state,
+        notes: [
+          ...state.notes,
+          {
+            ...note,
+            id: Date.now().toString(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        ],
+      };
+    }
     // Edit an existing note
-    case "EDIT_NOTE":
-      // Placeholder: Edit implementation
-      return { ...state };
+    case "EDIT_NOTE": {
+      const updated = action.payload;
+      return {
+        ...state,
+        notes: state.notes.map((note) =>
+          note.id === updated.id
+            ? {
+                ...note,
+                ...updated,
+                updatedAt: new Date().toISOString(),
+              }
+            : note
+        ),
+      };
+    }
     // Delete a note
-    case "DELETE_NOTE":
-      // Placeholder: Delete implementation
-      return { ...state };
+    case "DELETE_NOTE": {
+      const id = action.payload;
+      return {
+        ...state,
+        notes: state.notes.filter((note) => note.id !== id),
+      };
+    }
     // Organize notes (e.g., tags/folders)
     case "ORGANIZE_NOTE":
       // Placeholder: Organize implementation

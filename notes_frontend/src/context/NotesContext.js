@@ -1,4 +1,4 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useReducer, useState } from "react";
 
 /**
  * Types/Helpers
@@ -212,9 +212,12 @@ export const NotesContext = createContext();
  * PUBLIC_INTERFACE
  * Context provider for notes (wraps app to provide global notes state).
  * Provides notes, folders, tags, dispatcher, organization, and CRUD operations.
+ * Now includes search state for live filtering.
  */
 export function NotesProvider({ children }) {
   const [state, dispatch] = useReducer(notesReducer, initialNotesState);
+  // New search state for live filtering
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Note CRUD
   const addNote = (note) => dispatch({ type: "ADD_NOTE", payload: note });
@@ -248,10 +251,27 @@ export function NotesProvider({ children }) {
     visibleNotes = visibleNotes.filter((note) => (note.tags || []).includes(state.activeTagId));
   }
 
+  // Further filter visibleNotes by search query (title/content/tags, case-insensitive, live)
+  let searchFilteredNotes = visibleNotes;
+  if (searchQuery.trim() !== "") {
+    const q = searchQuery.trim().toLowerCase();
+    searchFilteredNotes = visibleNotes.filter((note) => {
+      // Title/content/tags all searched
+      const title = (note.title || "").toLowerCase();
+      const content = (note.content || "").toLowerCase();
+      const tags = (note.tags || []).join(" ").toLowerCase();
+      return (
+        title.includes(q) ||
+        content.includes(q) ||
+        tags.includes(q)
+      );
+    });
+  }
+
   return (
     <NotesContext.Provider
       value={{
-        notes: visibleNotes,
+        notes: searchFilteredNotes,
         allNotes: state.notes,
         folders: state.folders,
         tags: state.tags,
@@ -270,6 +290,8 @@ export function NotesProvider({ children }) {
         setActiveFolder,
         setActiveTag,
         clearActive,
+        searchQuery,
+        setSearchQuery,
       }}
     >
       {children}

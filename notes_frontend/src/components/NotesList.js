@@ -1,16 +1,21 @@
 import React, { useContext } from "react";
 import { NotesContext } from "../context/NotesContext";
 
-// PUBLIC_INTERFACE
+/**
+ * PUBLIC_INTERFACE
+ * Shows the list of currently visible notes — which reflects filter/search from context.
+ */
 function NotesList({ onSelect, selectedNoteId }) {
-  /** List of user notes, displays all notes and actions */
+  /** List of user notes, displays all notes and actions, filtered by context (folder/tag/search) */
   const { notes, deleteNote } = useContext(NotesContext);
 
   return (
     <section className="notes-list">
       <h3 style={{ marginTop: 0 }}>Notes</h3>
       {notes.length === 0 && (
-        <div style={{ color: "var(--text-secondary)" }}>No notes yet. Create one!</div>
+        <div style={{ color: "var(--text-secondary)" }}>
+          No notes match your current search or filter.
+        </div>
       )}
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
         {notes.map((note) => (
